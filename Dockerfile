@@ -31,11 +31,11 @@ RUN conda install -q pytest pip astropy scipy
 #
 # Clone.
 #
-RUN git clone --depth=50 --branch=master https://github.com/weaverba137/pydl.git weaverba137/pydl
+RUN git clone --depth=50 --branch=fix-32-bit https://github.com/weaverba137/pydl.git weaverba137/pydl
 WORKDIR /home/travis/weaverba137/pydl
 RUN git submodule update --init --recursive
 #
 # Run test.
 #
-# ENTRYPOINT ["python", "setup.py", "test"]
-CMD []
+ENTRYPOINT ["linux32", "--"]
+CMD ["python", "setup.py", "test"]
