@@ -38,4 +38,4 @@ RUN git submodule update --init --recursive
 # Run test.
 #
 ENTRYPOINT ["linux32", "--"]
-CMD ["python", "setup.py", "test"]
+CMD ["python", "setup.py", "test", "-v", "-V"]
