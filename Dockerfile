@@ -3,9 +3,8 @@ MAINTAINER Benjamin Alan Weaver <baweaver@lbl.gov>
 #
 # Variables.
 #
-ENV testuser travis
-ENV branch master
-ENV package weaverba137/pydl
+ENV testuser=travis branch=hmf-object package=weaverba137/pydl \
+    python_version=3.5 conda_env=test
 #
 # Add a non-privileged user.
 #
@@ -29,17 +28,26 @@ WORKDIR /home/${testuser}
 # Conda setup.
 #
 RUN linux32 -- /bin/bash Miniconda-latest-Linux-x86.sh -b -p ${HOME}/miniconda
-ENV PATH=/home/${testuser}/miniconda/bin:${PATH}
-RUN conda config --set always_yes yes --set changeps1 no
-# RUN conda create -q -n test python=2.7
-# RUN source activeate test
-RUN conda install -q pytest pip astropy scipy
+ENV base_path=${PATH}
+# ENV PATH=/home/${testuser}/miniconda/bin:${PATH}
+RUN linux32 -- /home/${testuser}/miniconda/bin/conda config --set always_yes yes --set changeps1 no
+RUN linux32 -- /home/${testuser}/miniconda/bin/conda create -q -n ${conda_env} python=${python_version}
+#
+# source activate doesn't work because we're in /bin/sh, but activate only
+# supports bash & zsh
+#
+# RUN source activate test
+ENV PATH=/home/${testuser}/miniconda/envs/${conda_env}/bin:${base_path} \
+    CONDA_ENV_PATH=/home/${testuser}/miniconda/envs/${conda_env} \
+    CONDA_DEFAULT_ENV=${conda_env}
+RUN linux32 -- conda install -q pytest pip nomkl astropy scipy matplotlib
+# RUN linux32 -- pip install --pre --upgrade numpy
 #
 # Clone.
 #
-RUN git clone --depth=50 --branch=${branch} https://github.com/${package}.git ${package}
+RUN linux32 -- git clone --depth=50 --branch=${branch} https://github.com/${package}.git ${package}
 WORKDIR /home/${testuser}/${package}
-RUN git submodule update --init --recursive
+RUN linux32 -- git submodule update --init --recursive
 #
 # Run test.
 #
